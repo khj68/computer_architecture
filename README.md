@@ -3,10 +3,10 @@
 
 
   ## ●Phase 1  
-   ### ●Algorithm Selection  
-   ##### ● We first chose brute-force search  
-   ##### Execution time in console : 46.47 ms  
-   ##### ● We add some codes and changed algorithm to backtracking  
-   ##### ```c++ if(sum_distance > ans) break;```  
-   ##### Execution time in console : 25.14 ms  
-   ##### We reduced time almost twice
+   ### <pre>  ●Algorithm Selection </pre>  
+   ##### <pre>    ● We first chose brute-force search </pre>  
+   ##### <pre>      Execution time in console : 46.47 ms </pre> 
+   ##### <pre>    ● We add some codes and changed algorithm to backtracking </pre>  
+   ##### <pre>      ```c++ if(sum_distance > ans) break;```  </pre>
+   ##### <pre>      Execution time in console : 25.14 ms  </pre>
+   ##### <pre>      We reduced time almost twice </pre>
