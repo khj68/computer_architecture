@@ -1,7 +1,5 @@
 # Computer Architecture
 ## Team Project
-
-
 ## ●Phase 1  
 ### <pre>  ●Algorithm Selection </pre>  
 ##### <pre>    ● We first chose brute-force search </pre>  
