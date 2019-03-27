@@ -8,6 +8,6 @@
 >>>##### Execution time in console : 46.47 ms 
 >>#####  ● We add some codes and changed algorithm to backtracking 
 >>>#####  ``` if(sum_distance > ans) break;``` 
->>>![backtracking](./image/time_backtracking.png)
+>>>![backtracking](./image/time_backtracking.png)  
 >>> Execution time in console : 25.14 ms  
 >>> We reduced time almost twice
