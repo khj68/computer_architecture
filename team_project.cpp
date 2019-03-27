@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
@@ -25,9 +26,12 @@ double distance(node& a, node& b){
 }
 
 int main(){
+  clock_t begin, end;
+  begin =clock();
   node cities[7] = {{1,0,0}, {2,8,6}, {3,2,4}, {4,6,7}, {5,1,3}, {6,9,4}, {7,2,3}};
   int shortest_path[7];
   double ans = 100000000;
+  
 
   do{
     for(int i=0; i<7; i++){
@@ -40,6 +44,7 @@ int main(){
       }else{
         sum_distance += distance(cities[i], cities[i+1]);
       }
+      if(sum_distance > ans) break;
     }
     printf("%f min is %f\n", sum_distance, ans);
     if(ans > sum_distance){
@@ -52,4 +57,6 @@ int main(){
   for(int i=0; i<7; i++){
     printf("%d ", shortest_path[i]);
   }
+  end = clock();
+  printf("\nTIME : %f", (end-begin)/CLOCKS_PER_SEC);
 }
