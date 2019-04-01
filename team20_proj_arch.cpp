@@ -7,12 +7,9 @@
  * Team. 20
  */
 
-#include <cstdio>
-#include <algorithm>
-#include <cmath>
-#include <ctime>
-
-using namespace std;
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
 
 typedef struct {
   int num;
@@ -24,42 +21,51 @@ node cities[7] = {{1, 0, 0}, {2, 8, 6}, {3, 2, 4},
 bool visit[7];
 double ans = 100000000;
 double arr[7][7];
+int current_path[7];
+int shortest_path[7];
 
-bool operator<(node& a, node& b) {
-  return a.num < b.num;
-}
-
-void save_path(int* path, node* cities) {
+void save_path() {
   for(int i = 0; i < 7; i++){
-    path[i] = cities[i].num;
+    shortest_path[i] = current_path[i];
   }
-  return;
 }
 
 double distance(node& a, node& b) {
   return sqrt(pow((a.x - b.x), 2) + pow((a.y - b.y), 2));
 }
 
+void print_path(int* arr) {
+  for(int i=0; i<7; i++){
+    printf("%d ", arr[i]);
+  }
+  printf("\n");
+}
+
 void dfs(int n, int depth, double sum) {
   if(depth == 6){
     // add  path to 1
     sum += arr[n][0];
-    ans = min(ans, sum);
-    // min check
+    if(sum < ans){
+      ans = sum;
+      save_path();
+    }
     return;
   }
   for(int i = 1; i < 7; i++) {
     if(visit[i] == true) continue;
-    visit[i] = true;
-    if(!(sum > ans)) dfs(i, depth + 1, sum + arr[n][i]);
-    visit[i] = false;
+    
+    if(sum + arr[n][i] < ans) {
+      visit[i] = true;
+      current_path[depth+1] = cities[i].num;
+      dfs(i, depth + 1, sum + arr[n][i]);
+      visit[i] = false;
+    }
   }
 }
 
 int main() {
   clock_t begin, end;
   begin = clock();
-  int shortest_path[7];
 
   for(int i = 0; i < 7; i++) {
     for(int j = 0; j < i; j++) {
@@ -67,12 +73,14 @@ int main() {
       arr[j][i] = arr[i][j];
     }
   }
-
+  
+  shortest_path[0] = 1;
+  current_path[0] = 1;
   dfs(0, 0, 0);
-
-  printf("----------------------------------------------\n");
+  
   printf("SHORTEST PATH : ");
-  printf("%f\n", ans);
+  print_path(shortest_path);
+  printf("DISTANCE : %f\n", ans);
   end = clock();
-  printf("\nTIME : %f", (end - begin) / CLOCKS_PER_SEC);
+  printf("\nTIME : %lf", double(end - begin) / CLOCKS_PER_SEC);
 }
