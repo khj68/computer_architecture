@@ -35,7 +35,7 @@ double distance(node& a, node& b) {
 }
 
 void print_path(int* arr) {
-  for(int i=0; i<7; i++){
+  for(int i = 0; i < 7; i++){
     printf("%d ", arr[i]);
   }
   printf("\n");
