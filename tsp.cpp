@@ -82,5 +82,5 @@ int main() {
   print_path(shortest_path);
   printf("DISTANCE : %f\n", ans);
   end = clock();
-  printf("\nTIME : %lf", double(end - begin) / CLOCKS_PER_SEC);
+  printf("\nTIME : %lf\n", double(end - begin) / CLOCKS_PER_SEC);
 }
