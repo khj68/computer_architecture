@@ -35,7 +35,7 @@ double distance(node& a, node& b) {
 }
 
 void print_path(int* arr) {
-  for(int i=0; i<7; i++){
+  for(int i = 0; i < 7; i++){
     printf("%d ", arr[i]);
   }
   printf("\n");
@@ -82,5 +82,5 @@ int main() {
   print_path(shortest_path);
   printf("DISTANCE : %f\n", ans);
   end = clock();
-  printf("\nTIME : %lf", double(end - begin) / CLOCKS_PER_SEC);
+  printf("\nTIME : %lf\n", double(end - begin) / CLOCKS_PER_SEC);
 }
