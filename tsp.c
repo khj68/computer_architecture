@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <time.h>
 
 typedef struct {
   int num;
@@ -24,24 +23,28 @@ double arr[7][7];
 int current_path[7];
 int shortest_path[7];
 
-void save_path() {
+void save_path()
+{
   for(int i = 0; i < 7; i++){
     shortest_path[i] = current_path[i];
   }
 }
 
-double distance(node* a, node* b) {
+double distance(node* a, node* b)
+{
   return sqrt(pow((a->x - b->x), 2) + pow((a->y - b->y), 2));
 }
 
-void print_path(int* arr) {
+void print_path(int* arr)
+{
   for(int i = 0; i < 7; i++){
     printf("%d ", arr[i]);
   }
   printf("\n");
 }
 
-void dfs(int n, int depth, double sum) {
+void dfs(int n, int depth, double sum)
+{
   if(depth == 6){
     // add path to 1
     sum += arr[n][0];
@@ -63,10 +66,8 @@ void dfs(int n, int depth, double sum) {
   }
 }
 
-int main() {
-  clock_t begin, end;
-  begin = clock();
-
+int main()
+{
   for(int i = 0; i < 7; i++) {
     for(int j = 0; j < i; j++) {
       arr[i][j] = distance(&cities[i], &cities[j]);
@@ -81,6 +82,4 @@ int main() {
   printf("SHORTEST PATH : ");
   print_path(shortest_path);
   printf("DISTANCE : %f\n", ans);
-  end = clock();
-  printf("\nTIME : %lf", (double)(end - begin) / CLOCKS_PER_SEC);
 }
