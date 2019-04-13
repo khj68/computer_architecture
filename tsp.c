@@ -4,7 +4,7 @@
  * 2019 Spring Course Project
  * TSP on MIPS
  * Phase 1: High level language program
- * Team. 20
+ * Team. 20: Hyunjun Kim, Ju-eun Park
  */
 
 #include <stdio.h>
@@ -18,7 +18,7 @@ typedef struct {
 
 node cities[7] = {{1, 0, 0}, {2, 8, 6}, {3, 2, 4},
                   {4, 6, 7}, {5, 1, 3}, {6, 9, 4}, {7, 2, 3}};
-bool visit[7];
+int visit[7];
 double ans = 100000000;
 double arr[7][7];
 int current_path[7];
@@ -30,12 +30,12 @@ void save_path() {
   }
 }
 
-double distance(node& a, node& b) {
-  return sqrt(pow((a.x - b.x), 2) + pow((a.y - b.y), 2));
+double distance(node* a, node* b) {
+  return sqrt(pow((a->x - b->x), 2) + pow((a->y - b->y), 2));
 }
 
 void print_path(int* arr) {
-  for(int i = 0; i < 7; i++){
+  for(int i=0; i<7; i++){
     printf("%d ", arr[i]);
   }
   printf("\n");
@@ -69,7 +69,7 @@ int main() {
 
   for(int i = 0; i < 7; i++) {
     for(int j = 0; j < i; j++) {
-      arr[i][j] = distance(cities[i], cities[j]);
+      arr[i][j] = distance(&cities[i], &cities[j]);
       arr[j][i] = arr[i][j];
     }
   }
@@ -82,5 +82,5 @@ int main() {
   print_path(shortest_path);
   printf("DISTANCE : %f\n", ans);
   end = clock();
-  printf("\nTIME : %lf\n", double(end - begin) / CLOCKS_PER_SEC);
+  printf("\nTIME : %lf", (double)(end - begin) / CLOCKS_PER_SEC);
 }
