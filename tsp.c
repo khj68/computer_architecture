@@ -4,7 +4,7 @@
  * 2019 Spring Course Project
  * TSP on MIPS
  * Phase 1: High level language program
- * Team. 20: Hyunjun Kim, Ju-eun Park
+ * Team. 20: Hyungjun Kim, Ju-eun Park
  */
 
 #include <stdio.h>
@@ -35,7 +35,7 @@ double distance(node* a, node* b) {
 }
 
 void print_path(int* arr) {
-  for(int i=0; i<7; i++){
+  for(int i = 0; i < 7; i++){
     printf("%d ", arr[i]);
   }
   printf("\n");
@@ -43,7 +43,7 @@ void print_path(int* arr) {
 
 void dfs(int n, int depth, double sum) {
   if(depth == 6){
-    // add  path to 1
+    // add path to 1
     sum += arr[n][0];
     if(sum < ans){
       ans = sum;
