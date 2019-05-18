@@ -99,11 +99,9 @@ test:			.word 1, 2, 3, 4, 5, 6, 7
 
 .text
 main:
-	jal		print_path
-
 	li		$a0, 0
 	li		$a1, 0
-	ldc1	$f14, 0
+	mfc1	$zero, $f14
 	jal		dfs				# call dfs
 
 	jal		print_path
@@ -112,7 +110,7 @@ main:
     syscall
 
 print_path:
-	la 		$s1, test
+	la 		$s1, shortest_path
 
 	li		$t1, 7		# $t1 = 7
 	li		$t3, 0		# i = 0
@@ -158,19 +156,18 @@ save_path:
 dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 	beq $a1, 6, dfs_end   # if depth == 6 then end
 
-	addi	$sp, $sp, -16
-	sw		$ra, 12($sp)
-	sw		$a0, 8($sp)
-	sw		$a1, 4($sp)
-	sdc1		$f14, 0($sp)
+	addi	$sp, $sp, -20
+	sw		$ra, 16($sp)
+	sw		$a0, 12($sp)
+	sw		$a1, 8($sp)
+	sdc1	$f14, 0($sp)	# TODO: store error?
 
 	li		$t2, 0   # $t2 is i
 	L2: 
 		addi	$t2, $t2, 1       # i
 		sll		$t3, $t2, 2
 		la		$s1, visit
-		lw		$t6, 0($s1)
-		add		$t4, $t3, $t6
+		add		$t4, $t3, $s1
 		lw		$t5, 0($t4)			# visit[i]
 		beq		$t5, 1, L2			# if visit[i] == 1 continue;
 
@@ -179,7 +176,7 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		add		$t1, $t1, $t2
 		mul		$t1, $t1, 8
 		add		$t0, $t0, $t1
-		ldc1	$f4, 0($t0)
+		l.d		$f4, 0($t0)
 		add.d	$f0, $f4, $f14    # sum+arr[n][i]
 		ldc1	$f2, ans
 		c.lt.d	$f0, $f2	# sum+arr[n][i] < ans
@@ -187,7 +184,10 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		
 		addi	$t5, $zero, 1
 		sw		$t5, 0($t4)
-		lw		$t6, cityi+0		# cities[i].num
+		la		$s1, cities
+		mul 	$s3, $t2, 12
+		add 	$s1, $s1, $s3
+		lw		$t6, 0($s1)		# cities[i].num
 		addi	$t7, $a1, 1			# depth+1
 		mul		$t8, $t7, 4
 		la		$s2, current_path
@@ -199,7 +199,7 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		move	$t7, $a1
 		mfc1    $zero, $f6	# $f6 = 0.0
 		sub.d	$f14, $f0, $f6	# move $f0 to $f14
-		jal		dfs			# call dfs
+		jal		dfs			# call dfs TODO: error occured
 		
 		sw		$zero, 0($t4)   # visit[i] = 0
 		jr		$ra
@@ -219,9 +219,9 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		l.d		$f0, 0($t9)	      # ans = sum
 		jal		save_path
 
-		l.d		$f14, 0($sp)
-		lw		$a1, 4($sp)
-		lw		$a0, 8($sp)
-		lw		$ra, 12($sp)
-		addi	$sp, $sp, 16
+		ldc1	$f14, 0($sp)
+		lw		$a1, 8($sp)
+		lw		$a0, 12($sp)
+		lw		$ra, 16($sp)
+		addi	$sp, $sp, 20
 		jr $ra
