@@ -37,8 +37,7 @@ cities:		# city num, x, y
 
 # TODO: ?
 ans:
-	.word	1100470148
-	.word	0
+	.double	100000000.0
 
 # TODO: which strategy should be used?
 arr:	# array for distance
@@ -178,26 +177,31 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 	L2: 
 		addi	$t2, $t2, 1       # i
 		sll		$t3, $t2, 2
-		add		$t4, address(visit), $t3	# TODO: address
-		lw		$t5, 0($t4)        # visit[i]
-		beq		$t5, 1, L2    # if visit[i] == 1 continue;
+		la		$s1, visit
+		lw		$t6, 0($s1)
+		add		$t4, $t3, $t6		# TODO: address
+		lw		$t5, 0($t4)			# visit[i]
+		beq		$t5, 1, L2			# if visit[i] == 1 continue;
 
-		move	$t0, 0(arr)		# $t0 = &arr TODO:?
-		muli	$t1, $a0, 7
+		la		$t0, arr			# $t0 = &arr TODO:?
+		mul		$t1, $a0, 7
 		add		$t1, $t1, $t2
-		muli	$t1, $t1, 8
+		mul		$t1, $t1, 8
 		add		$t0, $t0, $t1
 		ldc1	$f1, 0($t0)
 		add.d	$f0, $f1, $f14    # sum+arr[n][i]
-		c.lt.d	$f0, ans
+		ldc1	$f2, ans
+		c.lt.d	$f0, $f2
 		bc1t	L2
 		
 		addi	$t5, $zero, 1
 		sw		$t5, 0($t4)
 		lw		$t6, cityi+0		# cities[i].num
-		addi	$t7, $a1, 1	# depth+1
-		muli	$t8, $t7, 4
-		addi	$t8, $t8, add(current_path)
+		addi	$t7, $a1, 1			# depth+1
+		mul		$t8, $t7, 4
+		la		$s2, current_path
+		lw		$t4, 0($s2)
+		add		$t8, $t8, $t4		# TODO: address
 		sw		$t6, 0($t8)
 
 		mov		$t2, $a0	# save next argument 
