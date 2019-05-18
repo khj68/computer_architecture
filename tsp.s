@@ -204,17 +204,17 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		add		$t8, $t8, $t4		# TODO: address
 		sw		$t6, 0($t8)
 
-		mov		$t2, $a0	# save next argument 
-		mov		$t7, $a1
-		mtc		$f0, $f14
+		move	$t2, $a0	# save next argument 
+		move	$t7, $a1	# TODO: 순서???
+		mtc1	$f0, $f14	# TODO: error!!!
 		jal		dfs			# call dfs
 		
 		sw		$zero, 0($t4)   # visit[i] = 0
 		jr		$ra
 	dfs_end: 
 		move	$t0, 0(arr)		# $t0 = &arr TODO:?
-		muli	$t1, $a0, 7
-		muli	$t1, $t1, 8
+		mul		$t1, $a0, 7
+		mul		$t1, $t1, 8
 		add		$t0, $t0, $t1
 		ldc1	$f1, 0($t0)
 		add.d	$f2, $f14, $f1      #sum += arr[n][0]
