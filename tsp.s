@@ -104,17 +104,19 @@ test:			.word 1, 2, 3, 4, 5, 6, 7
 main:
 	li		$a0, 0
 	li		$a1, 0
-	li		$a2, 0
+	li		$f14, 0
 	jal		dfs				# call dfs
 	
 	la		$a0, test  # TODO: it is just test
 	jal		print_path		# call print_path
+
+	la		$a0, shortest_path
+	jal		print_path
 	
 	li   $v0, 10		# terminate program
     syscall
 
 print_path:
-	move 	$s1, $a0		# $s1 = $a0
 	addi	$sp, $sp, -8
 	sw		$ra, 4($sp)
 	sw		$a0, 0($sp)
@@ -122,9 +124,9 @@ print_path:
 	li		$t1, 7		# $t1 = 7
 	li		$t3, 0		# i = 0
 	L1:
-		bge		$t3, $t1, print_path_end	# if i >= 7 then print_path_end
+		bge		$t3, $t1, print_path_dfs_end	# if i >= 7 then print_path_dfs_end
 		sll		$t4, $t3, 2		# i * 4 (offset)
-		add		$t4, $s1, $t4	# arr[i]
+		add		$t4, $a0, $t4	# arr[i]
 		
 		lw		$a0, 0($t4)		# $a0 = arr[i]
 		li		$v0, 1			# print integer
@@ -136,7 +138,7 @@ print_path:
 
 		addiu	$t3, $t3, 1		# i++
 		b		L1				# branch to L1
-	print_path_end:
+	print_path_dfs_end:
 		la		$a0, newline	# print newline (not really useful for here)
 		li		$v0, 4
 		syscall
@@ -146,6 +148,81 @@ print_path:
 		addi	$sp, $sp, 8
 		jr		$ra			# jump to $ra
 
-# TODO: implement dfs
-dfs:
-	jr		$ra				# jump to $ra
+save_path:
+	li		$t1, 7
+	li		$t3, 0
+	L3:
+		bge		$t3, $t1, save_path_end
+		sll		$t4, $t3, 2
+		add		$t4, current_path, $t3
+
+		lw		$s1, 0($t4)
+		sw		$s1, 0(shortest_path)
+
+		addiu	$t3, $t3, 1
+		b		L3			# branch to L3
+	save_path_end:
+		jr		$ra
+
+dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
+	beq $a1, 6, dfs_end   # if depth == 6 then end
+
+	addi	$sp, $sp, -16
+	sw		$ra, 12($sp)
+	sw		$a0, 8($sp)
+	sw		$a1, 4($sp)
+	sw		$f14, 0($sp)
+
+	movi $t2, 0   # $t2 is i
+	L2: 
+		addi	$t2, $t2, 1       # i
+		sll		$t3, $t2, 2
+		add		$t4, address(visit), $t3
+		lw		$t5, 0($t4)        # visit[i]
+		beq		$t5, 1, L2    # if visit[i] == 1 continue;
+
+		move	$t0, 0(arr)		# $t0 = &arr TODO:?
+		muli	$t1, $a0, 7
+		add		$t1, $t1, $t2
+		muli	$t1, $t1, 8
+		add		$t0, $t0, $t1
+		ldc1	$f1, 0($t0)
+		add.d	$f0, $f1, $f14    # sum+arr[n][i]
+		c.lt.d	$f0, ans
+		bc1t	L2
+		
+		addi	$t5, $zero, 1
+		sw		$t5, 0($t4)
+		lw		$t6, cityi+0		# cities[i].num
+		addi	$t7, $a1, 1	# depth+1
+		muli	$t8, $t7, 4
+		addi	$t8, $t8, add(current_path)
+		sw		$t6, 0($t8)
+
+		mov		$t2, $a0	# save next argument 
+		mov		$t7, $a1
+		mtc		$f0, $f14
+		jal		dfs			# call dfs
+		
+		sw		$zero, 0($t4)   # visit[i] = 0
+		jr		$ra
+	dfs_end: 
+		move	$t0, 0(arr)		# $t0 = &arr TODO:?
+		muli	$t1, $a0, 7
+		muli	$t1, $t1, 8
+		add		$t0, $t0, $t1
+		ldc1	$f1, 0($t0)
+		add.d	$f2, $f14, $f1      #sum += arr[n][0]
+		c.lt.d	$f2, ans	      # if sum < ans
+		bc1t	save		      # save_path
+		jr		$ra
+	save: 
+		mtc1 $f0, ans	      # ans = sum
+		jal save_path
+
+		lw		$f14, 0($sp)
+		lw		$a1, 4($sp)
+		lw		$a0, 8($sp)
+		lw		$ra, 12($sp)
+		addi	$sp, $sp, 16
+		jr $ra
