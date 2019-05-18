@@ -35,11 +35,9 @@ cities:		# city num, x, y
 	.word	2
 	.word	3
 
-# TODO: ?
 ans:
 	.double	100000000.0
 
-# TODO: which strategy should be used?
 arr:	# array for distance
 	.double	0.000000	# row 1
 	.double 10.000000
@@ -101,31 +99,27 @@ test:			.word 1, 2, 3, 4, 5, 6, 7
 
 .text
 main:
+	jal		print_path
+
 	li		$a0, 0
 	li		$a1, 0
 	ldc1	$f14, 0
 	jal		dfs				# call dfs
-	
-	la		$a0, test		# TODO: it is just test
-	jal		print_path		# call print_path
 
-	la		$a0, shortest_path
 	jal		print_path
 	
 	li   $v0, 10		# terminate program
     syscall
 
 print_path:
-	addi	$sp, $sp, -8
-	sw		$ra, 4($sp)
-	sw		$a0, 0($sp)
+	la 		$s1, test
 
 	li		$t1, 7		# $t1 = 7
 	li		$t3, 0		# i = 0
 	L1:
 		bge		$t3, $t1, print_path_dfs_end	# if i >= 7 then print_path_dfs_end
 		sll		$t4, $t3, 2		# i * 4 (offset)
-		add		$t4, $a0, $t4	# arr[i]
+		add		$t4, $s1, $t4	# arr[i]
 		
 		lw		$a0, 0($t4)		# $a0 = arr[i]
 		li		$v0, 1			# print integer
@@ -142,9 +136,6 @@ print_path:
 		li		$v0, 4
 		syscall
 
-		lw		$a0, 0($sp)
-		lw		$ra, 4($sp)
-		addi	$sp, $sp, 8
 		jr		$ra			# jump to $ra
 
 save_path:
