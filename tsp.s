@@ -36,7 +36,7 @@ cities:		# city num, x, y
 	.word	3
 
 ans:
-	.double	100000000.0
+	.double	1000000.0
 
 arr:	# array for distance
 	.double	0.000000	# row 1
@@ -108,11 +108,11 @@ main:
 	ldc1	$f0, ans
 	li		$v0, 3
 	syscall
-
+	nop
 	la		$a0, newline	# print newline (not really useful for here)
 	li		$v0, 4
 	syscall
-
+	nop
 	jal		print_path
 	nop
 
@@ -130,20 +130,21 @@ print_path:
 		lw		$a0, 0($t4)		# $a0 = arr[i]
 		li		$v0, 1			# print integer
 		syscall
-
+		nop
 		la		$a0, space		# print space
 		li		$v0, 4
 		syscall
-
+		nop
 		addiu	$t3, $t3, 1		# i++
 		j		L1				# branch to L1
+		nop
 	print_path_dfs_end:
 		la		$a0, newline	# print newline (not really useful for here)
 		li		$v0, 4
 		syscall
-
+		nop
 		jr		$ra			# jump to $ra
-
+		nop
 save_path:
 	li		$t1, 7
 	li		$t3, 0
@@ -151,7 +152,7 @@ save_path:
 		bge		$t3, $t1, save_path_end
 		sll		$t4, $t3, 2
 		la 		$s3, current_path	# $s3 = cur
-		add		$s3, $s3, $t3		# current_path[i]
+		add		$s3, $s3, $t4		# current_path[i]
 
 		lw		$s1, 0($s3)			# $s1 = current_path[i]
 		la		$s3, shortest_path
@@ -160,12 +161,12 @@ save_path:
 
 		addiu	$t3, $t3, 1
 		b		L3			# branch to L3
+		nop
 	save_path_end:
 		jr		$ra
-
 dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 	beq $a1, 6, dfs_end   # if depth == 6 then end
-
+	nop
 	addi	$sp, $sp, -32
 	sw		$ra, 24($sp)
 	sw		$a0, 16($sp)
@@ -175,43 +176,47 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 	li		$t2, 0   # $t2 is i
 	L2: 
 		addi	$t2, $t2, 1       # i
-		bgt		$t2, 6, dfs_end 
-		sll		$t3, $t2, 2
-		la		$s1, visit
-		add		$t9, $t3, $s1
-		lw		$t5, 0($t9)			# visit[i]
+		beq		$t2, $a0, L2
+		nop
+		bgt		$t2, 6, dfs_end 	# if i>6 end loop
+		nop
+		sll		$t3, $t2, 2		#index processing
+		la		$s1, visit		#load visit address
+		add		$s7, $t3, $s1	# $t9 = address of visit[i]
+		lw		$t5, 0($s7)			# $t5 = visit[i]
 		beq		$t5, 1, L2			# if visit[i] == 1 continue;
-
+		nop
 		la		$t0, arr			# $t0 = &arr
-		mul		$t1, $a0, 7
-		add		$t1, $t1, $t2
-		mul		$t1, $t1, 8
-		add		$t0, $t0, $t1
-		l.d		$f4, 0($t0)
-		add.d	$f0, $f4, $f14    # sum+arr[n][i]
-		ldc1	$f2, ans
-		c.lt.d	$f0, $f2	# sum+arr[n][i] < ans
+		mul		$t1, $a0, 7			# col processing
+		add		$t1, $t1, $t2		# row proceesing
+		mul		$t1, $t1, 8			# address processing
+		add		$t0, $t0, $t1		# $t0 = &arr[n][i]
+		l.d		$f4, 0($t0)			# $f4 = arr[n][i]
+		add.d	$f0, $f4, $f14    # $f0 = sum+arr[n][i]
+		ldc1	$f2, ans		# $f2 = ans
+		c.lt.d	$f2, $f0	# sum+arr[n][i] > ans then L2
 		bc1t	L2
-		
-		addi	$t5, $zero, 1
-		sw		$t5, 0($t9) 	# visit[i] = 1
-		la		$s1, cities
-		mul 	$s3, $t2, 12
-		add 	$s1, $s1, $s3
-		lw		$t6, 0($s1)		# cities[i].num
+		nop
+		addi	$t5, $zero, 1	# $t5 = 1
+		sw		$t5, 0($s7) 	# visit[i] = 1
+		la		$s1, cities		# $s1 = &cities[i]
+		mul 	$s3, $t2, 12	
+		add 	$s1, $s1, $s3	# $s1 = &cities[i].num
+		lw		$t6, 0($s1)		# $t6 = cities[i].num
 		addi	$t7, $a1, 1			# depth+1
-		mul		$t8, $t7, 4
-		la		$s2, current_path
-		add		$s2, $t8, $s2
-		sw		$t6, 0($s2)
+		mul		$t8, $t7, 4			# [depth+1]
+		la		$s2, current_path	
+		add		$s2, $t8, $s2		#$s2 = current_path[depth+1]
+		sw		$t6, 0($s2)		# current_path[i] = cities[i].num
 
-		move	$t2, $a0	# save next argument 
-		move	$t7, $a1
+		#save next argument
+		move	$t2, $a0	# n = i 
+		move	$t7, $a1	# depth = depth+1 
 		mfc1    $zero, $f6	# $f6 = 0.0
-		sub.d	$f14, $f0, $f6	# move $f0 to $f14
+		sub.d	$f14, $f0, $f6	# move $f0(sum+arr[n][i]) to $f14
 		jal		dfs
 		nop
-		sw		$zero, 0($t9)   # visit[i] = 0
+		sw		$zero, 0($s7)   # visit[i] = 0
 		
 		l.d		$f14, 0($sp)
 		lw		$a1, 8($sp)
@@ -222,15 +227,15 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 	dfs_end:
 		la		$t0, arr
 		mul		$t1, $a0, 7
-		mul		$t1, $t1, 8
-		add		$t0, $t0, $t1
-		ldc1	$f4, 0($t0)
-		add.d	$f2, $f14, $f4    # sum += arr[n][0]
-		la		$t9, ans
-		l.d		$f6, 0($t9)
-		c.lt.d	$f2, $f6	      # if sum < ans
+		mul		$t1, $t1, 8		
+		add		$t0, $t0, $t1	# $t0 = &arr[n][0]
+		ldc1	$f4, 0($t0)		# $f4 = arr[n][0]
+		add.d	$f14, $f14, $f4    # sum += arr[n][0]
+		la		$t9, ans			# $t9 = &ans
+		l.d		$f6, 0($t9)			# $f6 = ans
+		c.lt.d	$f14, $f6	      # if sum < ans
 		bc1t	save		      # save_path
-
+		nop
 		l.d		$f14, 0($sp)
 		lw		$a1, 8($sp)
 		lw		$a0, 16($sp)
@@ -238,7 +243,7 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		addi	$sp, $sp, 32
 		jr		$ra
 	save: 
-		l.d		$f0, 0($t9)	      # ans = sum
+		s.d		$f14, 0($t9)	      # ans = sum
 		jal		save_path
 		nop
 
