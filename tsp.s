@@ -106,7 +106,7 @@ main:
 	ldc1	$f14, 0
 	jal		dfs				# call dfs
 	
-	la		$a0, test  # TODO: it is just test
+	la		$a0, test		# TODO: it is just test
 	jal		print_path		# call print_path
 
 	la		$a0, shortest_path
@@ -179,19 +179,19 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		sll		$t3, $t2, 2
 		la		$s1, visit
 		lw		$t6, 0($s1)
-		add		$t4, $t3, $t6		# TODO: address
+		add		$t4, $t3, $t6
 		lw		$t5, 0($t4)			# visit[i]
 		beq		$t5, 1, L2			# if visit[i] == 1 continue;
 
-		la		$t0, arr			# $t0 = &arr TODO:?
+		la		$t0, arr			# $t0 = &arr
 		mul		$t1, $a0, 7
 		add		$t1, $t1, $t2
 		mul		$t1, $t1, 8
 		add		$t0, $t0, $t1
-		ldc1	$f1, 0($t0)
-		add.d	$f0, $f1, $f14    # sum+arr[n][i]
+		ldc1	$f4, 0($t0)
+		add.d	$f0, $f4, $f14    # sum+arr[n][i]
 		ldc1	$f2, ans
-		c.lt.d	$f0, $f2
+		c.lt.d	$f0, $f2	# sum+arr[n][i] < ans
 		bc1t	L2
 		
 		addi	$t5, $zero, 1
@@ -201,31 +201,34 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		mul		$t8, $t7, 4
 		la		$s2, current_path
 		lw		$t4, 0($s2)
-		add		$t8, $t8, $t4		# TODO: address
+		add		$t8, $t8, $t4
 		sw		$t6, 0($t8)
 
 		move	$t2, $a0	# save next argument 
-		move	$t7, $a1	# TODO: 순서???
-		mtc1	$f0, $f14	# TODO: error!!!
+		move	$t7, $a1
+		mfc1    $zero, $f6	# $f6 = 0.0
+		sub.d	$f14, $f0, $f6	# move $f0 to $f14
 		jal		dfs			# call dfs
 		
 		sw		$zero, 0($t4)   # visit[i] = 0
 		jr		$ra
-	dfs_end: 
-		move	$t0, 0(arr)		# $t0 = &arr TODO:?
+	dfs_end:
+		la		$t0, arr
 		mul		$t1, $a0, 7
 		mul		$t1, $t1, 8
 		add		$t0, $t0, $t1
-		ldc1	$f1, 0($t0)
-		add.d	$f2, $f14, $f1      #sum += arr[n][0]
-		c.lt.d	$f2, ans	      # if sum < ans
+		ldc1	$f4, 0($t0)
+		add.d	$f2, $f14, $f4      #sum += arr[n][0]
+		la		$t9, ans
+		l.d		$f6, 0($t9)
+		c.lt.d	$f2, $f6	      # if sum < ans
 		bc1t	save		      # save_path
 		jr		$ra
 	save: 
-		mtc1 $f0, ans	      # ans = sum
-		jal save_path
+		l.d		$f0, 0($t9)	      # ans = sum
+		jal		save_path
 
-		lw		$f14, 0($sp)
+		l.d		$f14, 0($sp)
 		lw		$a1, 4($sp)
 		lw		$a0, 8($sp)
 		lw		$ra, 12($sp)
