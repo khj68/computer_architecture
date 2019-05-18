@@ -103,19 +103,27 @@ main:
 	li		$a1, 0
 	mfc1	$zero, $f14
 	jal		dfs				# call dfs
+	nop
+
+	ldc1	$f0, ans
+	li		$v0, 3
+	syscall
+
+	la		$a0, newline	# print newline (not really useful for here)
+	li		$v0, 4
+	syscall
 
 	jal		print_path
-	
+	nop
+
 	li   $v0, 10		# terminate program
     syscall
 
 print_path:
 	la 		$s1, shortest_path
-
-	li		$t1, 7		# $t1 = 7
 	li		$t3, 0		# i = 0
 	L1:
-		bge		$t3, $t1, print_path_dfs_end	# if i >= 7 then print_path_dfs_end
+		beq		$t3, 7, print_path_dfs_end	# if i >= 7 then print_path_dfs_end
 		sll		$t4, $t3, 2		# i * 4 (offset)
 		add		$t4, $s1, $t4	# arr[i]
 		
@@ -128,7 +136,7 @@ print_path:
 		syscall
 
 		addiu	$t3, $t3, 1		# i++
-		b		L1				# branch to L1
+		j		L1				# branch to L1
 	print_path_dfs_end:
 		la		$a0, newline	# print newline (not really useful for here)
 		li		$v0, 4
@@ -142,10 +150,12 @@ save_path:
 	L3:
 		bge		$t3, $t1, save_path_end
 		sll		$t4, $t3, 2
-		la 		$s3, current_path
-		add		$t4, $s3, $t3
+		la 		$s3, current_path	# $s3 = cur
+		add		$s3, $s3, $t3		# current_path[i]
 
-		lw		$s1, 0($t4)
+		lw		$s1, 0($s3)			# $s1 = current_path[i]
+		la		$s3, shortest_path
+		add		$s3, $s3, $t4
 		sw		$s1, 0($s3)
 
 		addiu	$t3, $t3, 1
@@ -156,19 +166,20 @@ save_path:
 dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 	beq $a1, 6, dfs_end   # if depth == 6 then end
 
-	addi	$sp, $sp, -20
-	sw		$ra, 16($sp)
-	sw		$a0, 12($sp)
+	addi	$sp, $sp, -32
+	sw		$ra, 24($sp)
+	sw		$a0, 16($sp)
 	sw		$a1, 8($sp)
-	sdc1	$f14, 0($sp)	# TODO: store error?
+	s.d		$f14, 0($sp)
 
 	li		$t2, 0   # $t2 is i
 	L2: 
 		addi	$t2, $t2, 1       # i
+		bgt		$t2, 6, dfs_end 
 		sll		$t3, $t2, 2
 		la		$s1, visit
-		add		$t4, $t3, $s1
-		lw		$t5, 0($t4)			# visit[i]
+		add		$t9, $t3, $s1
+		lw		$t5, 0($t9)			# visit[i]
 		beq		$t5, 1, L2			# if visit[i] == 1 continue;
 
 		la		$t0, arr			# $t0 = &arr
@@ -183,7 +194,7 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		bc1t	L2
 		
 		addi	$t5, $zero, 1
-		sw		$t5, 0($t4)
+		sw		$t5, 0($t9) 	# visit[i] = 1
 		la		$s1, cities
 		mul 	$s3, $t2, 12
 		add 	$s1, $s1, $s3
@@ -191,17 +202,22 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		addi	$t7, $a1, 1			# depth+1
 		mul		$t8, $t7, 4
 		la		$s2, current_path
-		lw		$t4, 0($s2)
-		add		$t8, $t8, $t4
-		sw		$t6, 0($t8)
+		add		$s2, $t8, $s2
+		sw		$t6, 0($s2)
 
 		move	$t2, $a0	# save next argument 
 		move	$t7, $a1
 		mfc1    $zero, $f6	# $f6 = 0.0
 		sub.d	$f14, $f0, $f6	# move $f0 to $f14
-		jal		dfs			# call dfs TODO: error occured
+		jal		dfs
+		nop
+		sw		$zero, 0($t9)   # visit[i] = 0
 		
-		sw		$zero, 0($t4)   # visit[i] = 0
+		l.d		$f14, 0($sp)
+		lw		$a1, 8($sp)
+		lw		$a0, 16($sp)
+		lw		$ra, 24($sp)
+		addi	$sp, $sp, 32
 		jr		$ra
 	dfs_end:
 		la		$t0, arr
@@ -209,19 +225,26 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		mul		$t1, $t1, 8
 		add		$t0, $t0, $t1
 		ldc1	$f4, 0($t0)
-		add.d	$f2, $f14, $f4      #sum += arr[n][0]
+		add.d	$f2, $f14, $f4    # sum += arr[n][0]
 		la		$t9, ans
 		l.d		$f6, 0($t9)
 		c.lt.d	$f2, $f6	      # if sum < ans
 		bc1t	save		      # save_path
+
+		l.d		$f14, 0($sp)
+		lw		$a1, 8($sp)
+		lw		$a0, 16($sp)
+		lw		$ra, 24($sp)
+		addi	$sp, $sp, 32
 		jr		$ra
 	save: 
 		l.d		$f0, 0($t9)	      # ans = sum
 		jal		save_path
+		nop
 
-		ldc1	$f14, 0($sp)
+		l.d		$f14, 0($sp)
 		lw		$a1, 8($sp)
-		lw		$a0, 12($sp)
-		lw		$ra, 16($sp)
-		addi	$sp, $sp, 20
+		lw		$a0, 16($sp)
+		lw		$ra, 24($sp)
+		addi	$sp, $sp, 32
 		jr $ra
