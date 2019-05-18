@@ -104,7 +104,7 @@ test:			.word 1, 2, 3, 4, 5, 6, 7
 main:
 	li		$a0, 0
 	li		$a1, 0
-	li		$f14, 0
+	ldc1	$f14, 0
 	jal		dfs				# call dfs
 	
 	la		$a0, test  # TODO: it is just test
@@ -154,10 +154,11 @@ save_path:
 	L3:
 		bge		$t3, $t1, save_path_end
 		sll		$t4, $t3, 2
-		add		$t4, current_path, $t3
+		la 		$s3, current_path
+		add		$t4, $s3, $t3
 
 		lw		$s1, 0($t4)
-		sw		$s1, 0(shortest_path)
+		sw		$s1, 0($s3)
 
 		addiu	$t3, $t3, 1
 		b		L3			# branch to L3
@@ -171,13 +172,13 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 	sw		$ra, 12($sp)
 	sw		$a0, 8($sp)
 	sw		$a1, 4($sp)
-	sw		$f14, 0($sp)
+	sdc1		$f14, 0($sp)
 
-	movi $t2, 0   # $t2 is i
+	li		$t2, 0   # $t2 is i
 	L2: 
 		addi	$t2, $t2, 1       # i
 		sll		$t3, $t2, 2
-		add		$t4, address(visit), $t3
+		add		$t4, address(visit), $t3	# TODO: address
 		lw		$t5, 0($t4)        # visit[i]
 		beq		$t5, 1, L2    # if visit[i] == 1 continue;
 
