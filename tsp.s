@@ -119,7 +119,7 @@ main:
 	jal		print_path
 	nop
 	li		$v0, 10		# terminate program
-    syscall
+  syscall
 
 print_path:
 	la 		$s1, shortest_path
@@ -149,7 +149,6 @@ print_path:
 		nop
 
 save_path:
-	# li		$t1, 7
 	li		$t3, 0	# i
 	L3:
 		bge		$t3, 7, save_path_end
@@ -167,7 +166,7 @@ save_path:
 		nop
 	save_path_end:
 		jr		$ra
-# TODO: debugging
+
 dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 	beq		$a1, 6, dfs_end   # if depth == 6 then end
 	nop
@@ -177,7 +176,7 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 	sw		$a1, 24($sp)
 	s.d		$f14, 16($sp)	# 8 byte double
 	sw		$s7, 8($sp)		# &visit[i] of caller
-	sw		$s4, 0($sp)		# i index
+	sw		$s4, 4($sp)		# i index
 
 	li		$s4, 0	# $s4 is i index
 	L2:  # for loop
@@ -208,11 +207,12 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		li		$t5, 1				# $t5 = 1
 		sw		$t5, 0($s7) 		# visit[i] = 1
 
-		# la		$s1, cities			# $s1 = &cities[0]
-		# mul 	$s3, $s4, 12		# i * 12 (size of struct)
-		# add 	$s1, $s1, $s3		# $s1 = &cities[i].num
-		# lw		$t6, 0($s1)			# $t6 = cities[i].num
-		addi	$t6, $s4, 1			# city num (same thing as upper)
+		la		$s1, cities			# $s1 = &cities[0]
+		mul 	$s3, $s4, 12		# i * 12 (size of struct)
+		add 	$s1, $s1, $s3		# $s1 = &cities[i].num
+		lw		$t6, 0($s1)			# $t6 = cities[i].num
+		
+		# addi	$t6, $s4, 1			# city num (same thing as upper)
 
 		addi	$t7, $a1, 1			# depth+1
 		mul		$t8, $t7, 4			# [depth+1]
@@ -243,11 +243,11 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		c.lt.d	$f14, $f6			# if sum < ans
 		bc1t	save				# then goto save
 		nop
-		lw		$s4, 0($sp)
+		lw		$s4, 4($sp)
 		lw		$s7, 8($sp)
 		l.d		$f14, 16($sp)
 		lw		$a1, 24($sp)
-		lw		$a0, 32($sp)
+		lw		$a0, 36($sp)
 		lw		$ra, 40($sp)
 		addi	$sp, $sp, 48
 		jr		$ra
@@ -255,11 +255,11 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		s.d		$f14, 0($t9)		# ans = sum
 		jal		save_path
 		nop
-		lw		$s4, 0($sp)
+		lw		$s4, 4($sp)
 		lw		$s7, 8($sp)
 		l.d		$f14, 16($sp)
 		lw		$a1, 24($sp)
-		lw		$a0, 32($sp)
+		lw		$a0, 36($sp)
 		lw		$ra, 40($sp)
 		addi	$sp, $sp, 48
 		jr		$ra

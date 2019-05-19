@@ -61,7 +61,7 @@ void dfs(int n, int depth, double sum)
       visit[i] = 1;
       current_path[depth+1] = cities[i].num;
       dfs(i, depth + 1, sum + arr[n][i]);
-      visit[i] = 0;
+      // visit[i] = 0;
     }
   }
 }
@@ -74,6 +74,7 @@ int main()
       arr[j][i] = arr[i][j];
     }
   }
+
   
   shortest_path[0] = 1;
   current_path[0] = 1;
