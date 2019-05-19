@@ -166,11 +166,12 @@ save_path:
 dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 	beq		$a1, 6, dfs_end   # if depth == 6 then end
 	nop
-	addi	$sp, $sp, -32
-	sw		$ra, 24($sp)
-	sw		$a0, 16($sp)
-	sw		$a1, 8($sp)
-	s.d		$f14, 0($sp)	# 8 byte double
+	addi	$sp, $sp, -40
+	sw		$ra, 32($sp)
+	sw		$a0, 24($sp)
+	sw		$a1, 16($sp)
+	s.d		$f14, 8($sp)	# 8 byte double
+	sw		$s7, 0($sp)		# &visit[i] of caller
 
 	li		$t2, 0   # $t2 is i index
 	L2:  # for loop
@@ -181,19 +182,19 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		nop
 		sll		$t3, $t2, 2			# index processing
 		la		$s1, visit			# load visit address
-		add		$s7, $t3, $s1		# $t9 = address of visit[i]
+		add		$s7, $t3, $s1		# $s7 = address of visit[i]
 		lw		$t5, 0($s7)			# $t5 = visit[i]
 		beq		$t5, 1, L2			# if visit[i] == 1 continue;
 		nop
 		la		$t0, arr			# $t0 = &arr
-		mul		$t1, $a0, 7			# col processing
-		add		$t1, $t1, $t2		# row proceesing
-		mul		$t1, $t1, 8			# address processing
+		mul		$t1, $a0, 7			# col processing; $t1 = n * 7
+		add		$t1, $t1, $t2		# row proceesing; $ti = n * 7 + i
+		mul		$t1, $t1, 8			# address processing; size of double
 		add		$t0, $t0, $t1		# $t0 = &arr[n][i]
 		l.d		$f4, 0($t0)			# $f4 = arr[n][i]
-		add.d	$f0, $f4, $f14		# $f0 = sum+arr[n][i]
+		add.d	$f0, $f4, $f14		# $f0 = sum + arr[n][i]
 		ldc1	$f2, ans			# $f2 = ans
-		c.lt.d	$f2, $f0			# sum+arr[n][i] > ans then L2
+		c.lt.d	$f2, $f0			# sum + arr[n][i] > ans then L2 (inverse condition)
 		bc1t	L2
 		nop
 		addi	$t5, $zero, 1		# $t5 = 1
@@ -217,11 +218,12 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		nop
 		sw		$zero, 0($s7)   	# visit[i] = 0
 		
-		l.d		$f14, 0($sp)
-		lw		$a1, 8($sp)
-		lw		$a0, 16($sp)
-		lw		$ra, 24($sp)
-		addi	$sp, $sp, 32
+		lw		$s7, 0($sp)
+		l.d		$f14, 8($sp)
+		lw		$a1, 16($sp)
+		lw		$a0, 24($sp)
+		lw		$ra, 32($sp)
+		addi	$sp, $sp, 40
 		jr		$ra
 	dfs_end:
 		la		$t0, arr
@@ -235,19 +237,21 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		c.lt.d	$f14, $f6			# if sum < ans
 		bc1t	save				# save_path
 		nop
-		l.d		$f14, 0($sp)
-		lw		$a1, 8($sp)
-		lw		$a0, 16($sp)
-		lw		$ra, 24($sp)
-		addi	$sp, $sp, 32
+		lw		$s7, 0($sp)
+		l.d		$f14, 8($sp)
+		lw		$a1, 16($sp)
+		lw		$a0, 24($sp)
+		lw		$ra, 32($sp)
+		addi	$sp, $sp, 40
 		jr		$ra
 	save: 
 		s.d		$f14, 0($t9)		# ans = sum
 		jal		save_path
 		nop
-		l.d		$f14, 0($sp)
-		lw		$a1, 8($sp)
-		lw		$a0, 16($sp)
-		lw		$ra, 24($sp)
-		addi	$sp, $sp, 32
+		lw		$s7, 0($sp)
+		l.d		$f14, 8($sp)
+		lw		$a1, 16($sp)
+		lw		$a0, 24($sp)
+		lw		$ra, 32($sp)
+		addi	$sp, $sp, 40
 		jr $ra
