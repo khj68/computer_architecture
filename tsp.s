@@ -104,7 +104,7 @@ main:
 	mfc1	$zero, $f14
 	jal		dfs		# call dfs
 	nop
-	ldc1	$f0, ans
+	ldc1	$f12, ans
 	li		$v0, 3
 	syscall
 	nop
@@ -175,11 +175,9 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 	sw		$s7, 8($sp)		# &visit[i] of caller
 	sw		$s4, 0($sp)		# i index
 
-	li		$s4, 0   # $s4 is i index
+	li		$s4, 0	# $s4 is i index
 	L2:  # for loop
 		addi	$s4, $s4, 1			# ++i
-		# beq		$s4, $a0, L2		# if i == n goto L2 (visit이 제대로 작동 안 할까봐...)
-		# nop
 		bgt		$s4, 6, dfs_end 	# if i > 6 then end recursive call
 		nop
 		
