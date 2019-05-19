@@ -108,7 +108,7 @@ main:
 	li		$v0, 3
 	syscall
 	nop
-	la		$a0, newline	# print newline (not really useful for here)
+	la		$a0, newline
 	li		$v0, 4
 	syscall
 	nop
@@ -217,7 +217,8 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		move	$a0, $s4			# n = i 
 		move	$a1, $t7			# depth = depth+1 
 		mfc1    $zero, $f6			# $f6 = 0.0
-		sub.d	$f14, $f0, $f6		# move $f0(sum+arr[n][i]) to $f14
+		add.d	$f14, $f0, $f6		# move $f0(sum+arr[n][i]) to $f14
+		# mfc1	$f0, $f14			# move $f0(sum+arr[n][i]) to $f14 (error, why?)
 		jal		dfs		# recursive call
 		nop
 		
