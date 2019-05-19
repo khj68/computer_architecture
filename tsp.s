@@ -6,7 +6,7 @@
 # Team. 20: Hyungjun Kim, Ju-eun Park
 
 .data
-cities:		# city num, x, y
+cities:		# struct city_node num, x, y
 	.word	1
 	.word	0
 	.word	0
@@ -199,8 +199,8 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		nop
 		addi	$t5, $zero, 1		# $t5 = 1
 		sw		$t5, 0($s7) 		# visit[i] = 1
-		la		$s1, cities			# $s1 = &cities[i]
-		mul 	$s3, $t2, 12	
+		la		$s1, cities			# $s1 = &cities[0]
+		mul 	$s3, $t2, 12		# i * 12 (size of struct)
 		add 	$s1, $s1, $s3		# $s1 = &cities[i].num
 		lw		$t6, 0($s1)			# $t6 = cities[i].num
 		addi	$t7, $a1, 1			# depth+1
@@ -210,8 +210,8 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $t2 - i
 		sw		$t6, 0($s2)			# current_path[i] = cities[i].num
 
 		# save next argument
-		move	$t2, $a0			# n = i 
-		move	$t7, $a1			# depth = depth+1 
+		move	$a0, $t2			# n = i 
+		move	$a1, $t7			# depth = depth+1 
 		mfc1    $zero, $f6			# $f6 = 0.0
 		sub.d	$f14, $f0, $f6		# move $f0(sum+arr[n][i]) to $f14
 		jal		dfs		# recursive call
