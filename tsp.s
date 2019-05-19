@@ -205,7 +205,7 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		bc1t	L2
 		nop
 		
-		addi	$t5, $zero, 1		# $t5 = 1
+		li		$t5, 1				# $t5 = 1
 		sw		$t5, 0($s7) 		# visit[i] = 1
 
 		# la		$s1, cities			# $s1 = &cities[0]
@@ -224,8 +224,7 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		move	$a0, $s4			# n = i 
 		move	$a1, $t7			# depth = depth+1 
 		mfc1    $zero, $f6			# $f6 = 0.0
-		add.d	$f14, $f0, $f6		# move $f0(sum+arr[n][i]) to $f14
-		# mfc1	$f0, $f14			# move $f0(sum+arr[n][i]) to $f14 (error, why?)
+		add.d	$f14, $f0, $f6		# move $f0(sum+arr[n][i]) to $f14		
 		jal		dfs		# recursive call
 		nop
 		
@@ -242,7 +241,7 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		la		$t9, ans			# $t9 = &ans
 		l.d		$f6, 0($t9)			# $f6 = ans
 		c.lt.d	$f14, $f6			# if sum < ans
-		bc1t	save				# then goto save_path
+		bc1t	save				# then goto save
 		nop
 		lw		$s4, 0($sp)
 		lw		$s7, 8($sp)
