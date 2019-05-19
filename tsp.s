@@ -95,10 +95,14 @@ current_path:	.space 28	# int current_path[7];
 space:			.asciiz " "
 newline:		.asciiz "\n"
 
-test:			.word 1, 2, 3, 4, 5, 6, 7
-
 .text
 main:
+	li		$t0, 1
+	la		$t1, shortest_path
+	sw		$t0, 0($t1)			# shortest_path[0] = 1
+	la		$t2, current_path
+	sw		$t0, 0($t2)			# current_path[0] = 1
+
 	li		$a0, 0
 	li		$a1, 0
 	mfc1	$zero, $f14
@@ -203,10 +207,13 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		
 		addi	$t5, $zero, 1		# $t5 = 1
 		sw		$t5, 0($s7) 		# visit[i] = 1
-		la		$s1, cities			# $s1 = &cities[0]
-		mul 	$s3, $s4, 12		# i * 12 (size of struct)
-		add 	$s1, $s1, $s3		# $s1 = &cities[i].num
-		lw		$t6, 0($s1)			# $t6 = cities[i].num
+
+		# la		$s1, cities			# $s1 = &cities[0]
+		# mul 	$s3, $s4, 12		# i * 12 (size of struct)
+		# add 	$s1, $s1, $s3		# $s1 = &cities[i].num
+		# lw		$t6, 0($s1)			# $t6 = cities[i].num
+		addi	$t6, $s4, 1			# city num (same thing as upper)
+
 		addi	$t7, $a1, 1			# depth+1
 		mul		$t8, $t7, 4			# [depth+1]
 		la		$s2, current_path	
