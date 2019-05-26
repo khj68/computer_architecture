@@ -6,34 +6,6 @@
 # Team. 20: Hyungjun Kim, Ju-eun Park
 
 .data
-cities:		# struct city_node num, x, y
-	.word	1
-	.word	0
-	.word	0
-
-	.word	2
-	.word	8
-	.word	6
-
-	.word	3
-	.word	2
-	.word	4
-
-	.word	4
-	.word	6
-	.word	7
-
-	.word	5
-	.word	1
-	.word	3
-
-	.word	6
-	.word	9
-	.word	4
-
-	.word	7
-	.word	2
-	.word	3
 
 ans:
 	.double	1000000.0
@@ -200,14 +172,7 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		
 		li		$t5, 1				# $t5 = 1
 		sw		$t5, 0($s7) 		# visit[i] = 1
-
-		la		$s1, cities			# $s1 = &cities[0]
-		mul 	$s3, $s4, 12		# i * 12 (size of struct)
-		add 	$s1, $s1, $s3		# $s1 = &cities[i].num
-		lw		$t6, 0($s1)			# $t6 = cities[i].num
-		
-		# addi	$t6, $s4, 1			# city num (same thing as upper)
-
+		addi	$t6, $s4, 1			# city num (i + 1)
 		addi	$t7, $a1, 1			# depth+1
 		mul		$t8, $t7, 4			# [depth+1]
 		la		$s2, current_path	
