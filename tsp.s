@@ -171,18 +171,11 @@ save_path:
 dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 	beq		$a1, 6, dfs_end   # if depth == 6 then end
 	nop
-	addi	$sp, $sp, -48
-	sw		$ra, 40($sp)
-	sw		$a0, 32($sp)
-	sw		$a1, 24($sp)
-	s.d		$f14, 16($sp)	# 8 byte double
-	sw		$s7, 8($sp)		# &visit[i] of caller
-	sw		$s4, 0($sp)		# i index
 
 	li		$s4, 0	# $s4 is i index
 	L2:  # for loop
 		addi	$s4, $s4, 1			# ++i
-		bgt		$s4, 6, dfs_end 	# if i > 6 then end recursive call
+		bgt		$s4, 6, save_end 	# if i > 6 then end recursive call
 		nop
 		
 		sll		$t3, $s4, 2			# index processing
@@ -221,6 +214,15 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		add		$s2, $t8, $s2		# $s2 = current_path[depth+1]
 		sw		$t6, 0($s2)			# current_path[i] = cities[i].num
 
+		# caller saved register
+		addi	$sp, $sp, -48
+		sw		$ra, 40($sp)
+		sw		$a0, 32($sp)
+		sw		$a1, 24($sp)
+		s.d		$f14, 16($sp)	# 8 byte double
+		sw		$s7, 8($sp)		# &visit[i] of caller
+		sw		$s4, 0($sp)		# i index
+		
 		# save next argument
 		move	$a0, $s4			# n = i 
 		move	$a1, $t7			# depth = depth+1 
@@ -228,6 +230,14 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		add.d	$f14, $f0, $f6		# move $f0(sum+arr[n][i]) to $f14		
 		jal		dfs		# recursive call
 		nop
+		
+		lw		$s4, 0($sp)
+		lw		$s7, 8($sp)
+		l.d		$f14, 16($sp)
+		lw		$a1, 24($sp)
+		lw		$a0, 32($sp)
+		lw		$ra, 40($sp)
+		addi	$sp, $sp, 48
 		
 		sw		$zero, 0($s7)   	# visit[i] = 0
 		j		L2					# jump to L2
@@ -247,15 +257,12 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		b save_end
 	save: 
 		s.d		$f8, 0($t9)		# ans = sum
+		addi	$sp, -4
+		sw		$ra, 0($sp)
 		jal		save_path
+		lw		$ra, 0($sp)
+		addi	$sp, 4
 		nop
 	save_end:
-		lw		$s4, 0($sp)
-		lw		$s7, 8($sp)
-		l.d		$f14, 16($sp)
-		lw		$a1, 24($sp)
-		lw		$a0, 32($sp)
-		lw		$ra, 40($sp)
-		addi	$sp, $sp, 48
 		jr		$ra
 		nop
