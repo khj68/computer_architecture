@@ -166,6 +166,7 @@ save_path:
 		nop
 	save_path_end:
 		jr		$ra
+		nop
 
 dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 	beq		$a1, 6, dfs_end   # if depth == 6 then end
@@ -230,17 +231,17 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		
 		sw		$zero, 0($s7)   	# visit[i] = 0
 		j		L2					# jump to L2
-		
+		nop
 	dfs_end:
 		la		$t0, arr
 		mul		$t1, $a0, 7
 		mul		$t1, $t1, 8		
 		add		$t0, $t0, $t1		# $t0 = &arr[n][0]
 		ldc1	$f4, 0($t0)			# $f4 = arr[n][0]
-		add.d	$f14, $f14, $f4		# sum += arr[n][0]
+		add.d	$f8, $f14, $f4		# sum += arr[n][0]
 		la		$t9, ans			# $t9 = &ans
 		l.d		$f6, 0($t9)			# $f6 = ans
-		c.lt.d	$f14, $f6			# if sum < ans
+		c.lt.d	$f8, $f6			# if sum < ans
 		bc1t	save				# then goto save
 		nop
 		lw		$s4, 4($sp)
@@ -251,8 +252,9 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		lw		$ra, 40($sp)
 		addi	$sp, $sp, 48
 		jr		$ra
+		nop
 	save: 
-		s.d		$f14, 0($t9)		# ans = sum
+		s.d		$f8, 0($t9)		# ans = sum
 		jal		save_path
 		nop
 		lw		$s4, 4($sp)
@@ -263,3 +265,4 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		lw		$ra, 40($sp)
 		addi	$sp, $sp, 48
 		jr		$ra
+		nop
