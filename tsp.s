@@ -224,10 +224,9 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		sw		$s4, 0($sp)		# i index
 		
 		# save next argument
-		move	$a0, $s4			# n = i 
-		move	$a1, $t7			# depth = depth+1 
-		mfc1    $zero, $f6			# $f6 = 0.0
-		add.d	$f14, $f0, $f6		# move $f0(sum+arr[n][i]) to $f14		
+		move	$a0, $s4		# n = i 
+		move	$a1, $t7		# depth = depth+1 
+		mov.d	$f14, $f0		# move $f0(sum+arr[n][i]) to $f14
 		jal		dfs		# recursive call
 		nop
 		
@@ -251,17 +250,17 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		add.d	$f8, $f14, $f4		# sum += arr[n][0]
 		la		$t9, ans			# $t9 = &ans
 		l.d		$f6, 0($t9)			# $f6 = ans
-		c.lt.d	$f8, $f6			# if sum < ans
+		c.le.d	$f8, $f6			# if sum <= ans
 		bc1t	save				# then goto save
 		nop
 		b save_end
 	save: 
 		s.d		$f8, 0($t9)		# ans = sum
-		addi	$sp, -4
+		addi	$sp, -8
 		sw		$ra, 0($sp)
 		jal		save_path
 		lw		$ra, 0($sp)
-		addi	$sp, 4
+		addi	$sp, 8
 		nop
 	save_end:
 		jr		$ra
