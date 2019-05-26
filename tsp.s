@@ -173,11 +173,11 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 	nop
 	addi	$sp, $sp, -48
 	sw		$ra, 40($sp)
-	sw		$a0, 36($sp)
+	sw		$a0, 32($sp)
 	sw		$a1, 24($sp)
 	s.d		$f14, 16($sp)	# 8 byte double
 	sw		$s7, 8($sp)		# &visit[i] of caller
-	sw		$s4, 4($sp)		# i index
+	sw		$s4, 0($sp)		# i index
 
 	li		$s4, 0	# $s4 is i index
 	L2:  # for loop
@@ -244,24 +244,17 @@ dfs:  # $a0 - n,  $a1 - depth, $f14 - sum, $s4 - i
 		c.lt.d	$f8, $f6			# if sum < ans
 		bc1t	save				# then goto save
 		nop
-		lw		$s4, 4($sp)
-		lw		$s7, 8($sp)
-		l.d		$f14, 16($sp)
-		lw		$a1, 24($sp)
-		lw		$a0, 36($sp)
-		lw		$ra, 40($sp)
-		addi	$sp, $sp, 48
-		jr		$ra
-		nop
+		b save_end
 	save: 
 		s.d		$f8, 0($t9)		# ans = sum
 		jal		save_path
 		nop
-		lw		$s4, 4($sp)
+	save_end:
+		lw		$s4, 0($sp)
 		lw		$s7, 8($sp)
 		l.d		$f14, 16($sp)
 		lw		$a1, 24($sp)
-		lw		$a0, 36($sp)
+		lw		$a0, 32($sp)
 		lw		$ra, 40($sp)
 		addi	$sp, $sp, 48
 		jr		$ra
