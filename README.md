@@ -12,7 +12,11 @@ In this phase, we solve the TSP given in the assignment manual with the DFS algo
 ![output](image/result-2019-04-13-21-36.png)
 
 # Phase 2
-(in progress)
+In this phase, we manually compile the C program made in phase1 into MIPS assembly. The report introduces the MIPS assembly code compiled and the estimated execution time in terms of instruction count.
 
 # Phase 3
+## Abstract
+In this phase, we found some errors and modified the assembly code slightly. After that, we confirmed that the result is correctly displayed on the console through SPIM, and calculated instruction count in manually and calculated it in SPIM. Finally, we compared the two to confirm the error.
+
+## Output
 (in progress)
